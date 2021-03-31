@@ -64,6 +64,111 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Vue--0331part2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2021/03/31/Vue--0331part2/" class="article-date">
+  <time datetime="2021-03-31T14:25:53.000Z" itemprop="datePublished">2021-03-31</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/03/31/Vue--0331part2/">Vue--0331part2</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="进入-离开-amp-列表过渡"><a href="#进入-离开-amp-列表过渡" class="headerlink" title="进入/离开 &amp; 列表过渡"></a>进入/离开 &amp; 列表过渡</h2><p>Vue 在插入、更新或者移除 DOM 时，提供多种不同方式的应用过渡效果。包括以下工具：</p>
+<ul>
+<li>在 CSS 过渡和动画中自动应用 class</li>
+<li>可以配合使用第三方 CSS 动画库，如 Animate.css</li>
+<li>在过渡钩子函数中使用 JavaScript 直接操作 DOM</li>
+<li>可以配合使用第三方 JavaScript 动画库，如 Velocity.js</li>
+</ul>
+<h3 id="单元素-组件过度"><a href="#单元素-组件过度" class="headerlink" title="单元素/组件过度"></a>单元素/组件过度</h3><p>Vue 提供了 <code>transition</code> 的封装组件，在下列情形中，可以给任何元素和组件添加进入/离开过渡</p>
+<ul>
+<li>条件渲染 (使用 <code>v-if</code>)</li>
+<li>条件展示 (使用 <code>v-show</code>)</li>
+<li>动态组件</li>
+<li>组件根节点</li>
+</ul>
+<p>这里是一个典型的例子：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;demo&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">v-on:click</span>=<span class="string">&quot;show = !show&quot;</span>&gt;</span></span><br><span class="line">    Toggle</span><br><span class="line">  <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">transition</span> <span class="attr">name</span>=<span class="string">&quot;fade&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span> <span class="attr">v-if</span>=<span class="string">&quot;show&quot;</span>&gt;</span>hello<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">transition</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  el: <span class="string">&#x27;#demo&#x27;</span>,</span><br><span class="line">  data: &#123;</span><br><span class="line">    show: <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line">.fade-enter-active, .fade-leave-active &#123;</span><br><span class="line">  transition: opacity .5s;</span><br><span class="line">&#125;</span><br><span class="line">.fade-enter, .fade-leave-to <span class="comment">/* .fade-leave-active below version 2.1.8 */</span> &#123;</span><br><span class="line">  opacity: <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当插入或删除包含在 <code>transition</code> 组件中的元素时，Vue 将会做以下处理：</p>
+<ol>
+<li>自动嗅探目标元素是否应用了 CSS 过渡或动画，如果是，在恰当的时机添加/删除 CSS 类名。</li>
+<li>如果过渡组件提供了 <a target="_blank" rel="noopener" href="https://cn.vuejs.org/v2/guide/transitions.html#JavaScript-%E9%92%A9%E5%AD%90">JavaScript 钩子函数</a>，这些钩子函数将在恰当的时机被调用。</li>
+<li>如果没有找到 JavaScript 钩子并且也没有检测到 CSS 过渡/动画，DOM 操作 (插入/删除) 在下一帧中立即执行。</li>
+</ol>
+<h4 id="过度流程"><a href="#过度流程" class="headerlink" title="过度流程"></a>过度流程</h4><p>在进入/离开的过渡中，会有 6 个 class 切换。</p>
+<ol>
+<li><code>v-enter</code>：定义进入过渡的开始状态。在元素被插入之前生效，在元素被插入之后的下一帧移除。</li>
+<li><code>v-enter-active</code>：定义进入过渡生效时的状态。在整个进入过渡的阶段中应用，在元素被插入之前生效，在过渡/动画完成之后移除。这个类可以被用来定义进入过渡的过程时间，延迟和曲线函数。</li>
+<li><code>v-enter-to</code>：<strong>2.1.8 版及以上</strong>定义进入过渡的结束状态。在元素被插入之后下一帧生效 (与此同时 <code>v-enter</code> 被移除)，在过渡/动画完成之后移除。</li>
+<li><code>v-leave</code>：定义离开过渡的开始状态。在离开过渡被触发时立刻生效，下一帧被移除。</li>
+<li><code>v-leave-active</code>：定义离开过渡生效时的状态。在整个离开过渡的阶段中应用，在离开过渡被触发时立刻生效，在过渡/动画完成之后移除。这个类可以被用来定义离开过渡的过程时间，延迟和曲线函数。</li>
+<li><code>v-leave-to</code>：<strong>2.1.8 版及以上</strong>定义离开过渡的结束状态。在离开过渡被触发之后下一帧生效 (与此同时 <code>v-leave</code> 被删除)，在过渡/动画完成之后移除。</li>
+</ol>
+<p><img src="C:\Users\micro\Desktop\transition.png" alt="transition"></p>
+<p>对于这些在过渡中切换的类名来说，如果你使用一个没有名字的 <code>&lt;transition&gt;</code>，则 <code>v-</code> 是这些类名的默认前缀。如果你使用了 <code>&lt;transition name=&quot;my-transition&quot;&gt;</code>，那么 <code>v-enter</code> 会替换为 <code>my-transition-enter</code>。</p>
+<h4 id="css动画过渡"><a href="#css动画过渡" class="headerlink" title="css动画过渡"></a>css动画过渡</h4><p>CSS 动画用法同 CSS 过渡，区别是在动画中 <code>v-enter</code> 类名在节点插入 DOM 后不会立即删除，而是在 <code>animationend</code> 事件触发时删除。</p>
+<h4 id="过渡类名自定义"><a href="#过渡类名自定义" class="headerlink" title="过渡类名自定义"></a>过渡类名自定义</h4><p>我们可以通过以下 attribute 来自定义过渡类名：</p>
+<ul>
+<li><code>enter-class</code></li>
+<li><code>enter-active-class</code></li>
+<li><code>enter-to-class</code> (2.1.8+)</li>
+<li><code>leave-class</code></li>
+<li><code>leave-active-class</code></li>
+<li><code>leave-to-class</code> (2.1.8+)</li>
+</ul>
+<p>他们的优先级高于普通的类名，这对于 Vue 的过渡系统和其他第三方 CSS 动画库，如 <a target="_blank" rel="noopener" href="https://daneden.github.io/animate.css/">Animate.css</a> 结合使用十分有用。</p>
+<p>示例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">link</span> <span class="attr">href</span>=<span class="string">&quot;https://cdn.jsdelivr.net/npm/animate.css@3.5.1&quot;</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text/css&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;example-3&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> @<span class="attr">click</span>=<span class="string">&quot;show = !show&quot;</span>&gt;</span></span><br><span class="line">    Toggle render</span><br><span class="line">  <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  &lt;transition</span><br><span class="line">    name=&quot;custom-classes-transition&quot;</span><br><span class="line">    enter-active-class=&quot;animated tada&quot;</span><br><span class="line">    leave-active-class=&quot;animated bounceOutRight&quot;</span><br><span class="line">  &gt;</span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span> <span class="attr">v-if</span>=<span class="string">&quot;show&quot;</span>&gt;</span>hello<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">transition</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  el: <span class="string">&#x27;#example-3&#x27;</span>,</span><br><span class="line">  data: &#123;</span><br><span class="line">    show: <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h4 id="关于同时使用过渡和动画"><a href="#关于同时使用过渡和动画" class="headerlink" title="关于同时使用过渡和动画"></a>关于同时使用过渡和动画</h4><p>Vue 为了知道过渡的完成，必须设置相应的事件监听器。它可以是 <code>transitionend</code> 或 <code>animationend</code>，这取决于给元素应用的 CSS 规则。如果你使用其中任何一种，Vue 能自动识别类型并设置监听。</p>
+<p>但是，在一些场景中，你需要给同一个元素同时设置两种过渡动效，比如 <code>animation</code> 很快的被触发并完成了，而 <code>transition</code> 效果还没结束。在这种情况中，你就需要使用 <code>type</code> attribute 并设置 <code>animation</code> 或 <code>transition</code> 来明确声明你需要 Vue 监听的类型。</p>
+<h4 id="关于自定义过渡持续时间"><a href="#关于自定义过渡持续时间" class="headerlink" title="关于自定义过渡持续时间"></a>关于自定义过渡持续时间</h4><p>在很多情况下，Vue 可以自动得出过渡效果的完成时机。默认情况下，Vue 会等待其在过渡效果的根元素的第一个 <code>transitionend</code> 或 <code>animationend</code> 事件。</p>
+<p>可以用 <code>&lt;transition&gt;</code> 组件上的 <code>duration</code> prop 定制一个显性的过渡持续时间 (以毫秒计)：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">transition</span> <span class="attr">:duration</span>=<span class="string">&quot;1000&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">transition</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>你也可以定制进入和移出的持续时间：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">transition</span> <span class="attr">:duration</span>=<span class="string">&quot;&#123; enter: 500, leave: 800 &#125;&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">transition</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="JS钩子"><a href="#JS钩子" class="headerlink" title="JS钩子"></a>JS钩子</h4><p>可以在 attribute 中声明 JavaScript 钩子</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;transition</span><br><span class="line">  v-on:before-enter=&quot;beforeEnter&quot;</span><br><span class="line">  v-on:enter=&quot;enter&quot;</span><br><span class="line">  v-on:after-enter=&quot;afterEnter&quot;</span><br><span class="line">  v-on:enter-cancelled=&quot;enterCancelled&quot;</span><br><span class="line"></span><br><span class="line">  v-on:before-leave=&quot;beforeLeave&quot;</span><br><span class="line">  v-on:leave=&quot;leave&quot;</span><br><span class="line">  v-on:after-leave=&quot;afterLeave&quot;</span><br><span class="line">  v-on:leave-cancelled=&quot;leaveCancelled&quot;</span><br><span class="line">&gt;</span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">transition</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>当只用 JavaScript 过渡的时候，<strong>在 <code>enter</code> 和 <code>leave</code> 中必须使用 <code>done</code> 进行回调</strong>。否则，它们将被同步调用，过渡会立即完成。</p>
+<p>推荐对于仅使用 JavaScript 过渡的元素添加 <code>v-bind:css=&quot;false&quot;</code>，Vue 会跳过 CSS 的检测。这也可以避免过渡过程中 CSS 的影响。</p>
+<p><a target="_blank" rel="noopener" href="https://cn.vuejs.org/v2/guide/transitions.html#JavaScript-%E9%92%A9%E5%AD%90">这里有个例子</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/03/31/Vue--0331part2/" data-id="ckmxm3kt40000j8ub713j0xg3" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Vue--0331part1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2021/03/31/Vue--0331part1/" class="article-date">
@@ -1063,45 +1168,6 @@
 
 
   
-    <article id="post-Spring-IoC" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/12/12/Spring-IoC/" class="article-date">
-  <time datetime="2020-12-12T02:45:02.000Z" itemprop="datePublished">2020-12-12</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/12/12/Spring-IoC/">Spring IoC</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="IoC容器"><a href="#IoC容器" class="headerlink" title="IoC容器"></a>IoC容器</h1><p>​        IoC容器替代了传统的new方式初始化对象，通过<strong>XML中配置的Bean的定义</strong>，自动创建并管理Bean实例；同时可以在<strong>配置中写入依赖</strong>，降低对象之间的耦合性。</p>
-<h2 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h2>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/12/12/Spring-IoC/" data-id="ckiq16d4700024cubctb8by2l" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -1120,7 +1186,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/LeetBook-%E7%AE%97%E6%B3%95-%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">LeetBook, 算法, 字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LeetBook-%E7%AE%97%E6%B3%95-%E6%95%B0%E7%BB%84/" rel="tag">LeetBook, 算法, 数组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/LeetBook-%E7%AE%97%E6%B3%95-%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">LeetBook, 算法, 字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LeetBook-%E7%AE%97%E6%B3%95-%E6%95%B0%E7%BB%84/" rel="tag">LeetBook, 算法, 数组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/" rel="tag">vue</a></li></ul>
     </div>
   </div>
 
@@ -1130,7 +1196,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/LeetBook-%E7%AE%97%E6%B3%95-%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">LeetBook, 算法, 字符串</a> <a href="/tags/LeetBook-%E7%AE%97%E6%B3%95-%E6%95%B0%E7%BB%84/" style="font-size: 15px;">LeetBook, 算法, 数组</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a>
+      <a href="/tags/LeetBook-%E7%AE%97%E6%B3%95-%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 13.33px;">LeetBook, 算法, 字符串</a> <a href="/tags/LeetBook-%E7%AE%97%E6%B3%95-%E6%95%B0%E7%BB%84/" style="font-size: 16.67px;">LeetBook, 算法, 数组</a> <a href="/tags/Spring/" style="font-size: 13.33px;">Spring</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a>
     </div>
   </div>
 
@@ -1152,6 +1218,10 @@
       <ul>
         
           <li>
+            <a href="/2021/03/31/Vue--0331part2/">Vue--0331part2</a>
+          </li>
+        
+          <li>
             <a href="/2021/03/31/Vue--0331part1/">Vue--0331part1</a>
           </li>
         
@@ -1165,10 +1235,6 @@
         
           <li>
             <a href="/2021/03/28/Vue--0328/">Vue--0328</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/25/Vue--0325/">Vue--0325</a>
           </li>
         
       </ul>
